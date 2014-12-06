@@ -11,13 +11,14 @@ namespace MasterMind
         static void Main(string[] args)
         {
             int[] secretArray = new int[] { 1, 2, 3, 4 };
-            int[] userGuessesArray = new int[] {0, 0, 0, 0};
+            int[] userGuessesArray = new int[] { 0, 0, 0, 0 };
 
             bool won = false;
+            int tries = 1;
 
             Init();
             SetSecretInts(ref secretArray);
-            Console.Write("{0} {1} {2} {3}", secretArray[0], secretArray[1], secretArray[2], secretArray[3]);
+            //Console.Write("{0} {1} {2} {3}", secretArray[0], secretArray[1], secretArray[2], secretArray[3]);
             Console.Write("\n");
 
             while (won == false)
@@ -26,15 +27,16 @@ namespace MasterMind
                 int[] resultArray = CheckForExactMatches(secretArray, userGuessesArray);
                 resultArray = CheckForMatches(secretArray, userGuessesArray, resultArray);
 
-
                 if (Array.IndexOf(resultArray, 0) == -1 && Array.IndexOf(resultArray, 1) == -1)
                 {
                     won = true;
-                    Console.WriteLine("won");
+                    Console.Write("\n");
+                    Console.WriteLine("You won! This took you {0} tries.", tries);
                 }
                 else
                 {
-                    Console.WriteLine(resultsAsString(resultArray));
+                    tries++;
+                    Console.WriteLine(ResultsAsString(resultArray));
                     Console.Write("\n");
                 }
             }
@@ -42,39 +44,39 @@ namespace MasterMind
         static void Init()
         {
             ConsoleKeyInfo input;
-
             do
             {
-                Console.Write("Press Enter to start!\n");  
+                Console.Write("Press Enter to start!\n");
                 input = Console.ReadKey();
                 Console.Write("\n");
-            } 
+            }
             while (input.Key != ConsoleKey.Enter);
             Console.Write("[][][][]");
             Console.Write("\n");
-   
         }
-        static void SetSecretInts(ref int [] secretArray)
+        static void SetSecretInts(ref int[] secretArray)
         {
             Random rnd = new Random();
-            int one = rnd.Next(1, 6);
-            int two = rnd.Next(1, 6);
-            int three = rnd.Next(1, 6);
-            int four = rnd.Next(1, 6);
+            int one = rnd.Next(1, 7);
+            int two = rnd.Next(1, 7);
+            int three = rnd.Next(1, 7);
+            int four = rnd.Next(1, 7);
 
             secretArray[0] = one;
             secretArray[1] = two;
             secretArray[2] = three;
             secretArray[3] = four;
-        
+
         }
-        static void GetUserInput(ref int [] userGuessesArray)
+        static void GetUserInput(ref int[] userGuessesArray)
         {
             string userGuessesString = Console.ReadLine();
-            userGuessesArray = Array.ConvertAll(userGuessesString.ToCharArray(), c => (int)Char.GetNumericValue(c)); 
+            userGuessesArray = Array.ConvertAll(userGuessesString.ToCharArray(), c => (int)Char.GetNumericValue(c));
         }
-        static string resultsAsString(int[] resultArray)
+        static string ResultsAsString(int[] resultArray)
         {
+            Random rnd = new Random();
+            resultArray = resultArray.OrderByDescending(c => c).ToArray();
             StringBuilder result = new StringBuilder();
             foreach (var item in resultArray)
             {
@@ -82,14 +84,14 @@ namespace MasterMind
                 {
                     result.Append("[?]");
                 }
-                else if (item == 1){
+                else if (item == 1)
+                {
                     result.Append("[/]");
                 }
                 else if (item == 2)
                 {
                     result.Append("[X]");
                 }
-                               
             }
             return result.ToString();
         }
@@ -117,140 +119,26 @@ namespace MasterMind
         }
         static int[] CheckForMatches(int[] secretArray, int[] userGuessesArray, int[] resultArray)
         {
-            List<int> zeros = new List<int>();
-            
-            for (int i = 0; i < resultArray.Length; i++)
+            var query = from a in secretArray
+                        from b in userGuessesArray
+                        select new { a, b };
+
+            query = query.AsEnumerable().ToArray();
+
+            double i = 0;
+            foreach (var x in query)
             {
-                if(resultArray[i] == 0){
-                    zeros.Add(i);
+                int y = (int)Math.Floor(i);
+                if (x.a == x.b)
+                {
+                    if (resultArray[y] != 2)
+                    {
+                        resultArray[y] = 1;
+                    }
                 }
+                i = i + 0.25;
             }
-            if (zeros.Count == 1 || zeros.Count == 0)
-            {
-                return resultArray;
-            }
-            else if (zeros.Count == 2)
-            {
-                if(secretArray[zeros[0]] == userGuessesArray[zeros[1]]){
-                    resultArray[zeros[0]] = 1;
-                    CheckForMatches(secretArray, userGuessesArray, resultArray);
-              
-                }
-                if (secretArray[zeros[1]] == userGuessesArray[zeros[0]])
-                {
-                    resultArray[zeros[1]] = 1;
-                    CheckForMatches(secretArray, userGuessesArray, resultArray); 
-                }
-                return resultArray;
-            }
-            else if (zeros.Count == 3)
-            {
-                // check 0 -> 1 AND  0 -> 2
-                if (secretArray[zeros[0]] == userGuessesArray[zeros[1]])
-                {
-                    resultArray[zeros[0]] = 1;
-                    CheckForMatches(secretArray, userGuessesArray, resultArray);
-                }
-                if (secretArray[zeros[0]] == userGuessesArray[zeros[2]])
-                {
-                    resultArray[zeros[0]] = 1;
-                    CheckForMatches(secretArray, userGuessesArray, resultArray);
-                }
-                // check 1 -> 0  AND  1 -> 2
-                if (secretArray[zeros[1]] == userGuessesArray[zeros[0]])
-                {
-                    resultArray[zeros[1]] = 1;
-                    CheckForMatches(secretArray, userGuessesArray, resultArray);
-                }
-                if (secretArray[zeros[1]] == userGuessesArray[zeros[2]])
-                {
-                    resultArray[zeros[1]] = 1;
-                    CheckForMatches(secretArray, userGuessesArray, resultArray);
-                }
-                // check 2 -> 0  AND  2 -> 1
-                if (secretArray[zeros[2]] == userGuessesArray[zeros[0]])
-                {
-                    resultArray[zeros[2]] = 1;
-                    CheckForMatches(secretArray, userGuessesArray, resultArray);
-                }
-                if (secretArray[zeros[2]] == userGuessesArray[zeros[1]])
-                {
-                    resultArray[zeros[2]] = 1;
-                    CheckForMatches(secretArray, userGuessesArray, resultArray);
-                }
-                return resultArray;
-                
-            }
-            else
-            {
-                // check 0
-                if (secretArray[zeros[0]] == userGuessesArray[zeros[1]])
-                {
-                    resultArray[zeros[0]] = 1;
-                    CheckForMatches(secretArray, userGuessesArray, resultArray);
-                }
-                if (secretArray[zeros[0]] == userGuessesArray[zeros[2]])
-                {
-                    resultArray[zeros[0]] = 1;
-                    CheckForMatches(secretArray, userGuessesArray, resultArray);
-                }
-                if (secretArray[zeros[0]] == userGuessesArray[zeros[3]])
-                {
-                    resultArray[zeros[0]] = 1;
-                    CheckForMatches(secretArray, userGuessesArray, resultArray);
-                }
-                // check 1
-                if (secretArray[zeros[1]] == userGuessesArray[zeros[0]])
-                {
-                    resultArray[zeros[1]] = 1;
-                    CheckForMatches(secretArray, userGuessesArray, resultArray);
-                }
-                if (secretArray[zeros[1]] == userGuessesArray[zeros[2]])
-                {
-                    resultArray[zeros[1]] = 1;
-                    CheckForMatches(secretArray, userGuessesArray, resultArray);
-                }
-                if (secretArray[zeros[1]] == userGuessesArray[zeros[3]])
-                {
-                    resultArray[zeros[1]] = 1;
-                    CheckForMatches(secretArray, userGuessesArray, resultArray);
-                }
-                // check 2
-                if (secretArray[zeros[2]] == userGuessesArray[zeros[0]])
-                {
-                    resultArray[zeros[2]] = 1;
-                    CheckForMatches(secretArray, userGuessesArray, resultArray);
-                }
-                if (secretArray[zeros[2]] == userGuessesArray[zeros[1]])
-                {
-                    resultArray[zeros[2]] = 1;
-                    CheckForMatches(secretArray, userGuessesArray, resultArray);
-                }
-                if (secretArray[zeros[2]] == userGuessesArray[zeros[3]])
-                {
-                    resultArray[zeros[2]] = 1;
-                    CheckForMatches(secretArray, userGuessesArray, resultArray);
-                }
-                // check 3
-                if (secretArray[zeros[3]] == userGuessesArray[zeros[0]])
-                {
-                    resultArray[zeros[3]] = 1;
-                    CheckForMatches(secretArray, userGuessesArray, resultArray);
-                }
-                if (secretArray[zeros[3]] == userGuessesArray[zeros[1]])
-                {
-                    resultArray[zeros[3]] = 1;
-                    CheckForMatches(secretArray, userGuessesArray, resultArray);
-                }
-                if (secretArray[zeros[3]] == userGuessesArray[zeros[2]])
-                {
-                    resultArray[zeros[3]] = 1;
-                    CheckForMatches(secretArray, userGuessesArray, resultArray);
-                }
-                return resultArray;
-            }
+            return resultArray;
         }
-
-
     }
 }
