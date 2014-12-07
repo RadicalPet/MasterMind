@@ -75,7 +75,6 @@ namespace MasterMind
         }
         static string ResultsAsString(int[] resultArray)
         {
-            Random rnd = new Random();
             resultArray = resultArray.OrderByDescending(c => c).ToArray();
             StringBuilder result = new StringBuilder();
             foreach (var item in resultArray)
