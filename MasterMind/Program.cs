@@ -18,7 +18,7 @@ namespace MasterMind
 
             Init();
             SetSecretInts(ref secretArray);
-            //Console.Write("{0} {1} {2} {3}", secretArray[0], secretArray[1], secretArray[2], secretArray[3]);
+            Console.Write("{0} {1} {2} {3}", secretArray[0], secretArray[1], secretArray[2], secretArray[3]);
             Console.Write("\n");
 
             while (won == false)
@@ -57,16 +57,10 @@ namespace MasterMind
         static void SetSecretInts(ref int[] secretArray)
         {
             Random rnd = new Random();
-            int one = rnd.Next(1, 7);
-            int two = rnd.Next(1, 7);
-            int three = rnd.Next(1, 7);
-            int four = rnd.Next(1, 7);
-
-            secretArray[0] = one;
-            secretArray[1] = two;
-            secretArray[2] = three;
-            secretArray[3] = four;
-
+            for (int i = 0; i < secretArray.Length; i++)
+            {
+                secretArray[i] = rnd.Next(1, 7);
+            }
         }
         static void GetUserInput(ref int[] userGuessesArray)
         {
@@ -98,21 +92,11 @@ namespace MasterMind
         {
             int[] resultArray = new int[4];
 
-            if (secretArray[0] == userGuessesArray[0])
-            {
-                resultArray[0] = 2;
-            }
-            if (secretArray[1] == userGuessesArray[1])
-            {
-                resultArray[1] = 2;
-            }
-            if (secretArray[2] == userGuessesArray[2])
-            {
-                resultArray[2] = 2;
-            }
-            if (secretArray[3] == userGuessesArray[3])
-            {
-                resultArray[3] = 2;
+            for (int i = 0; i < secretArray.Length; i++){
+                if (secretArray[i] == userGuessesArray[i])
+                {
+                    resultArray[i] = 2;
+                }
             }
             return resultArray;
         }
